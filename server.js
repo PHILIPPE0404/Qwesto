@@ -15,6 +15,13 @@ const PORT = Number(process.env.PORT || 3000);
 const DATABASE_URL = process.env.DATABASE_URL || '';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const SESSION_SECRET = process.env.SESSION_SECRET || '';
+const CPX_ENABLED = String(process.env.CPX_ENABLED || '').toLowerCase() === 'true';
+const CPX_APP_ID = String(process.env.CPX_APP_ID || '').trim();
+const CPX_SECURE_HASH = String(process.env.CPX_SECURE_HASH || '').trim();
+const CPX_CONSENT_VERSION = '2026-11-v1';
+function isCpxConfigured() {
+  return CPX_ENABLED && /^\d+$/.test(CPX_APP_ID) && CPX_SECURE_HASH.length >= 16;
+}
 
 if (!DATABASE_URL) throw new Error('DATABASE_URL manquant : ajoute la base PostgreSQL Render.');
 if (ADMIN_PASSWORD.length < 20) throw new Error('ADMIN_PASSWORD doit contenir au moins 20 caractères.');
@@ -41,6 +48,7 @@ app.use(helmet({
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
       frameAncestors: ["'none'"],
+      frameSrc: ["'self'", 'https://offers.cpx-research.com'],
       formAction: ["'self'"]
     }
   }
@@ -174,6 +182,9 @@ async function initDatabase() {
     );
     CREATE INDEX IF NOT EXISTS qwesto_responses_member_idx ON qwesto_responses(member_id, completed_at DESC);
     CREATE INDEX IF NOT EXISTS qwesto_responses_survey_idx ON qwesto_responses(survey_id, completed_at DESC);
+    ALTER TABLE qwesto_members ADD COLUMN IF NOT EXISTS cpx_enabled BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE qwesto_members ADD COLUMN IF NOT EXISTS cpx_consent_at TIMESTAMPTZ;
+    ALTER TABLE qwesto_members ADD COLUMN IF NOT EXISTS cpx_consent_version VARCHAR(24);
   `);
 }
 
@@ -182,10 +193,13 @@ app.get('/health', asyncRoute(async (_req, res) => {
   res.json({ ok: true, database: 'connected', mode: 'test', surveys: 'internal' });
 }));
 app.get('/api/config', (_req, res) => res.json({
-  appName: 'Qwesto', mode: 'test',
-  realSurveyProviderConnected: false,
+  appName: 'Qwesto', mode: 'hybrid',
+  cpxConfigured: isCpxConfigured(),
+  cpxProvider: 'CPX Research',
   paypalEnabled: false,
-  message: 'Les questionnaires sont publiés par ton administration. Les paiements et fournisseurs externes ne sont pas activés.'
+  message: isCpxConfigured()
+    ? 'CPX Research est configuré pour les comptes autorisés.'
+    : 'CPX Research est en attente de configuration privée dans Render.'
 }));
 app.get('/api/me', asyncRoute(async (req, res) => {
   if (req.session.user?.role === 'member') {
@@ -253,7 +267,7 @@ app.post('/api/change-password', requireAuth, writeLimiter, asyncRoute(async (re
 
 app.get('/api/admin/overview', requireAdmin, asyncRoute(async (_req, res) => {
   const [members, surveys, recent, totals] = await Promise.all([
-    pool.query(`SELECT m.id,m.username,m.full_name,m.active,m.created_at,
+    pool.query(`SELECT m.id,m.username,m.full_name,m.active,m.created_at,m.cpx_enabled,
       COUNT(r.id)::int AS completed_count, MAX(r.completed_at) AS last_activity
       FROM qwesto_members m LEFT JOIN qwesto_responses r ON r.member_id=m.id
       GROUP BY m.id ORDER BY m.created_at DESC`),
@@ -287,7 +301,7 @@ app.post('/api/admin/members', requireAdmin, writeLimiter, asyncRoute(async (req
   const hash = await bcrypt.hash(tempPassword, 12);
   try {
     const result = await pool.query(
-      'INSERT INTO qwesto_members (id,username,full_name,password_hash,must_change_password) VALUES ($1,$2,$3,$4,TRUE) RETURNING id,username,full_name,active,created_at',
+      'INSERT INTO qwesto_members (id,username,full_name,password_hash,must_change_password) VALUES ($1,$2,$3,$4,TRUE) RETURNING id,username,full_name,active,created_at,cpx_enabled',
       [crypto.randomUUID(), username, fullName, hash]
     );
     res.status(201).json({ ok: true, member: result.rows[0] });
@@ -304,6 +318,20 @@ app.patch('/api/admin/members/:id/status', requireAdmin, writeLimiter, asyncRout
   res.json({ ok: true, member: result.rows[0] });
 }));
 
+app.patch('/api/admin/members/:id/cpx-access', requireAdmin, writeLimiter, asyncRoute(async (req, res) => {
+  if (typeof req.body.enabled !== 'boolean') return res.status(400).json({ error: 'Statut CPX invalide.' });
+  const result = await pool.query(
+    'UPDATE qwesto_members SET cpx_enabled=$1 WHERE id=$2 RETURNING id,username,cpx_enabled',
+    [req.body.enabled, req.params.id]
+  );
+  if (!result.rowCount) return res.status(404).json({ error: 'Membre introuvable.' });
+  // Removing access also revokes the member's local CPX consent record.
+  if (!req.body.enabled) {
+    await pool.query('UPDATE qwesto_members SET cpx_consent_at=NULL,cpx_consent_version=NULL WHERE id=$1', [req.params.id]);
+  }
+  res.json({ ok: true, member: result.rows[0] });
+}));
+
 app.post('/api/admin/members/:id/reset-password', requireAdmin, writeLimiter, asyncRoute(async (req, res) => {
   const tempPassword = String(req.body.tempPassword || '');
   if (tempPassword.length < 12 || tempPassword.length > 200) return res.status(400).json({ error: '12 à 200 caractères requis.' });
@@ -315,7 +343,7 @@ app.post('/api/admin/members/:id/reset-password', requireAdmin, writeLimiter, as
 
 app.get('/api/admin/members/:id/activity', requireAdmin, asyncRoute(async (req, res) => {
   const member = await pool.query(
-    'SELECT id,username,full_name,active,created_at,must_change_password FROM qwesto_members WHERE id=$1 LIMIT 1',
+    'SELECT id,username,full_name,active,created_at,must_change_password,cpx_enabled,cpx_consent_at FROM qwesto_members WHERE id=$1 LIMIT 1',
     [req.params.id]
   );
   if (!member.rowCount) return res.status(404).json({ error: 'Membre introuvable.' });
@@ -358,6 +386,69 @@ app.delete('/api/admin/surveys/:id', requireAdmin, writeLimiter, asyncRoute(asyn
   const result = await pool.query("DELETE FROM qwesto_surveys s WHERE s.id=$1 AND s.status<>$2 AND NOT EXISTS (SELECT 1 FROM qwesto_responses r WHERE r.survey_id=s.id) RETURNING s.id", [req.params.id, 'published']);
   if (!result.rowCount) return res.status(409).json({ error: 'Impossible de supprimer un sondage publié. Archive-le d’abord.' });
   res.json({ ok: true });
+}));
+
+// CPX Research: access remains disabled until the administrator explicitly
+// authorizes the member and the member records the age/guardian consent.
+app.get('/api/member/cpx-status', requireMember, asyncRoute(async (req, res) => {
+  const result = await pool.query(
+    'SELECT cpx_enabled, cpx_consent_at FROM qwesto_members WHERE id=$1 LIMIT 1',
+    [req.session.user.id]
+  );
+  const member = result.rows[0];
+  res.json({
+    configured: isCpxConfigured(),
+    authorizedByAdmin: Boolean(member?.cpx_enabled),
+    consented: Boolean(member?.cpx_consent_at)
+  });
+}));
+
+app.post('/api/member/cpx-consent', requireMember, writeLimiter, asyncRoute(async (req, res) => {
+  if (req.body.confirmed !== true) return res.status(400).json({ error: 'Confirme les conditions avant de continuer.' });
+  const result = await pool.query(
+    'SELECT cpx_enabled FROM qwesto_members WHERE id=$1 LIMIT 1',
+    [req.session.user.id]
+  );
+  if (!result.rows[0]?.cpx_enabled) return res.status(403).json({ error: 'L’administrateur doit d’abord autoriser CPX pour ce compte.' });
+  if (!isCpxConfigured()) return res.status(503).json({ error: 'CPX n’est pas encore configuré dans Render.' });
+  await pool.query(
+    'UPDATE qwesto_members SET cpx_consent_at=NOW(), cpx_consent_version=$1 WHERE id=$2',
+    [CPX_CONSENT_VERSION, req.session.user.id]
+  );
+  res.json({ ok: true });
+}));
+
+app.delete('/api/member/cpx-consent', requireMember, writeLimiter, asyncRoute(async (req, res) => {
+  await pool.query(
+    'UPDATE qwesto_members SET cpx_consent_at=NULL,cpx_consent_version=NULL WHERE id=$1',
+    [req.session.user.id]
+  );
+  res.json({ ok: true });
+}));
+
+app.get('/api/member/cpx-wall', requireMember, asyncRoute(async (req, res) => {
+  if (!isCpxConfigured()) return res.status(503).json({ error: 'CPX n’est pas encore configuré. Vérifie les variables privées dans Render.' });
+  const result = await pool.query(
+    'SELECT cpx_enabled,cpx_consent_at FROM qwesto_members WHERE id=$1 LIMIT 1',
+    [req.session.user.id]
+  );
+  const member = result.rows[0];
+  if (!member?.cpx_enabled) return res.status(403).json({ error: 'Ce compte n’a pas été autorisé par l’administrateur.' });
+  if (!member.cpx_consent_at) return res.status(403).json({ error: 'Le membre doit d’abord confirmer les conditions CPX.' });
+
+  // CPX documentation: secure_hash = MD5(ext_user_id + '-' + app_secure_hash).
+  // The private app hash never leaves this server. No email, birth date or profile
+  // attributes are sent from Qwesto; CPX can request its own details if needed.
+  const extUserId = String(req.session.user.id);
+  const secureHash = crypto.createHash('md5')
+    .update(`${extUserId}-${CPX_SECURE_HASH}`, 'utf8')
+    .digest('hex');
+  const wallUrl = new URL('https://offers.cpx-research.com/index.php');
+  wallUrl.searchParams.set('app_id', CPX_APP_ID);
+  wallUrl.searchParams.set('ext_user_id', extUserId);
+  wallUrl.searchParams.set('secure_hash', secureHash);
+  wallUrl.searchParams.set('username', String(req.session.user.username || 'member'));
+  res.json({ ok: true, url: wallUrl.toString() });
 }));
 
 app.get('/api/member/dashboard', requireMember, asyncRoute(async (req, res) => {

@@ -103,7 +103,25 @@
 
       <section id="memberPanel" class="hidden">
         <div class="welcome-line"><div><span class="pill pill-mint">ESPACE MEMBRE</span><h2 id="memberWelcome">Bienvenue</h2><p class="muted">Retrouve ici les questionnaires publiés et ton activité.</p></div></div>
-        <div class="notice notice-info">Les questionnaires sont créés par l'administrateur de cette plateforme. Les participations ne génèrent aucun revenu et aucun paiement PayPal n'est activé.</div>
+        <div class="notice notice-info">Les questionnaires créés par Qwesto restent séparés des offres proposées par CPX Research.</div>
+        <section class="panel cpx-panel" aria-labelledby="cpxTitle">
+          <div class="section-heading">
+            <div><p class="eyebrow">PARTENAIRE EXTERNE</p><h3 id="cpxTitle">Sondages CPX Research</h3><p class="muted">Ouvre le mur de sondages du fournisseur dans ton espace membre.</p></div>
+            <span class="pill pill-mint">CPX</span>
+          </div>
+          <div id="cpxStatus" class="cpx-status" aria-live="polite">Vérification de la configuration CPX…</div>
+          <div id="cpxConsentArea" class="cpx-consent-area hidden">
+            <p class="cpx-privacy-note">CPX est un service externe. Sa politique indique qu'il peut demander des données comme l'adresse e-mail, l'âge, le code postal, des informations sur l'appareil et, selon les enquêtes, des informations sensibles. Ne donne pas d'information fausse et quitte une enquête si une question te met mal à l'aise.</p>
+            <p class="cpx-terms-links"><a href="https://cpx-research.com/main/en/terms-user.php" target="_blank" rel="noopener noreferrer">Conditions CPX</a> · <a href="https://www.cpx-research.com/main/en/privacy.php" target="_blank" rel="noopener noreferrer">Politique de confidentialité</a></p>
+            <label class="cpx-consent-check"><input id="cpxConsentCheck" type="checkbox"><span>Je confirme avoir au moins 14 ans. Si je suis mineur(e), mon parent ou représentant légal a lu ces informations et m'a donné son accord. J'ai lu les conditions et la politique de confidentialité CPX.</span></label>
+            <button id="cpxOpenButton" class="button button-primary" type="button" disabled>Confirmer et ouvrir les sondages CPX</button>
+          </div>
+          <div id="cpxWallArea" class="cpx-wall-area hidden">
+            <div class="cpx-wall-toolbar"><strong>Mur de sondages CPX</strong><button id="cpxCloseButton" class="button button-soft small-button" type="button">Fermer</button></div>
+            <iframe id="cpxFrame" title="Sondages CPX Research" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="clipboard-read; clipboard-write" src="about:blank"></iframe>
+          </div>
+          <button id="cpxRevokeButton" class="button button-soft small-button hidden" type="button">Retirer mon accord</button>
+        </section>
         <div class="stats-grid member-stats"><article class="stat-card"><span class="stat-icon mint-icon">✓</span><small>Questionnaires terminés</small><strong id="memberCompleted">0</strong><span class="stat-caption">Tes participations</span></article><article class="stat-card"><span class="stat-icon violet-icon">▤</span><small>Disponibles</small><strong id="memberAvailable">0</strong><span class="stat-caption">Sondages publiés</span></article></div>
         <section class="panel"><div class="section-heading"><div><p class="eyebrow">À DÉCOUVRIR</p><h3>Sondages disponibles</h3><p class="muted">Choisis un questionnaire pour répondre.</p></div></div><div id="memberSurveyList" class="member-survey-grid"><div class="empty-state">Chargement des sondages…</div></div></section>
         <section class="panel"><div class="section-heading"><div><p class="eyebrow">TON HISTORIQUE</p><h3>Mes participations</h3></div></div><div id="memberHistory" class="history-list"><div class="empty-state">Aucune participation pour le moment.</div></div></section>

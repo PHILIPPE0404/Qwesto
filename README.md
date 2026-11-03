@@ -17,9 +17,32 @@ Qwesto 2.0 est une plateforme privée de questionnaires internes avec comptes me
 
 ## Important : sondages externes et PayPal
 
-Cette version permet de **créer et publier tes propres questionnaires** dans Qwesto. Elle ne se connecte pas à CPX Research, BitLabs ou à un autre fournisseur externe, et n'envoie pas de paiements PayPal. Aucun montant présenté dans l'ancien prototype ne doit être considéré comme de l'argent disponible.
+Cette version permet de créer et publier des questionnaires Qwesto et d'afficher le mur CPX Research pour les membres explicitement autorisés. L'intégration CPX affiche les offres du fournisseur ; elle ne crédite pas automatiquement un solde Qwesto et n'effectue aucun paiement PayPal. Le suivi des conversions et le mécanisme de récompense interne doivent être configurés séparément, avec validation du contrat et du Postback par CPX.
 
 Un raccordement réel à un fournisseur et à PayPal nécessite notamment les contrats/approbations du fournisseur, un compte professionnel PayPal éligible avec les permissions requises, la vérification d'identité, le traitement des données personnelles et un cadre légal/comptable adapté. Ces services doivent être mis en place par un adulte ou une structure légalement habilitée. Ne publie pas de promesse de rémunération avant validation et tests réels.
+
+
+## CPX Research (mur de sondages)
+
+L'intégration utilise l'iframe officiellement documentée par CPX : `https://offers.cpx-research.com/index.php`. Le serveur construit l'URL pour chaque membre à partir de son UUID Qwesto et calcule `MD5(ext_user_id + '-' + CPX_SECURE_HASH)` côté serveur. Le Secure Hash n'est jamais envoyé au navigateur.
+
+Dans Render > ton service web > Environment, ajoute :
+
+| Variable | Valeur |
+|---|---|
+| `CPX_ENABLED` | `true` (uniquement après validation de l'application/domaine par CPX) |
+| `CPX_APP_ID` | App ID de l'application Qwesto affiché dans ton Publisher Dashboard |
+| `CPX_SECURE_HASH` | Secure Hash de cette application (secret, jamais dans GitHub) |
+
+Ne partage pas le Secure Hash dans un chat ou une capture. Après avoir ajouté les variables, sauvegarde et laisse Render redéployer.
+
+Dans Qwesto, connecte-toi en admin > Comptes membres > **Autoriser CPX**. N'autorise que les membres qui respectent l'âge minimum CPX (14 ans) et dont le représentant légal a donné son accord lorsqu'ils sont mineurs. Le membre doit ensuite lire les informations et confirmer son consentement avant d'ouvrir le mur. Un membre peut retirer son accord depuis son espace.
+
+Le lien d'entrée transmis à CPX contient uniquement l'App ID, l'UUID externe stable, son Secure Hash dérivé et le nom de compte Qwesto. Qwesto n'envoie pas de date de naissance, d'adresse e-mail, d'adresse postale ou de profil démographique.
+
+CPX indique que son service peut traiter des informations de profil et, selon les enquêtes, des données sensibles. Le membre doit lire la politique CPX, ne jamais fournir de fausses informations et quitter une enquête s'il ne souhaite pas répondre. Conditions répondant : https://cpx-research.com/main/en/terms-user.php ; politique de confidentialité : https://www.cpx-research.com/main/en/privacy.php.
+
+**Limites actuelles :** cette intégration affiche le mur CPX uniquement. Elle ne met pas à jour un solde Qwesto, ne calcule pas la part membre/plateforme, ne configure pas le Postback CPX et ne paie personne via PayPal. Configure le Postback dans le Publisher Dashboard seulement après avoir reçu les paramètres exacts de CPX et fait valider le système de suivi/paiement par l'adulte responsable. Ne présente pas les offres comme un revenu garanti.
 
 ## Prérequis
 
@@ -52,7 +75,7 @@ Un raccordement réel à un fournisseur et à PayPal nécessite notamment les co
    ```powershell
    npm install
    npm run check
-   git add server.js package.json render.yaml README.md DEPLOYER.ps1 public/index.html public/app.js public/styles.css
+   git add server.js package.json render.yaml README.md CPX-SETUP-FR.md DEPLOYER.ps1 public/index.html public/app.js public/styles.css
    git commit -m "Qwesto 2.0"
    git push
    ```

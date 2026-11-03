@@ -10,7 +10,7 @@ try {
   npm run check
   if ($LASTEXITCODE -ne 0) { throw "La vérification a échoué. Aucun envoi GitHub effectué." }
 
-  git add server.js package.json render.yaml README.md INTEGRATIONS-REAL.md DEPLOYER.ps1 .gitignore .env.example public/index.html public/app.js public/styles.css
+  git add server.js package.json render.yaml README.md INTEGRATIONS-REAL.md CPX-SETUP-FR.md DEPLOYER.ps1 .gitignore .env.example public/index.html public/app.js public/styles.css
   if ($LASTEXITCODE -ne 0) { throw "Impossible d'ajouter les fichiers à Git." }
   git diff --cached --quiet
   if ($LASTEXITCODE -eq 0) {
@@ -18,7 +18,7 @@ try {
     exit 0
   }
 
-  git commit -m "Qwesto 2.0: sondages publiables et podium anime"
+  git commit -m "Qwesto 2.1: CPX Research iframe"
   if ($LASTEXITCODE -ne 0) { throw "Le commit Git a échoué." }
   git push origin HEAD
   if ($LASTEXITCODE -ne 0) { throw "Le push a échoué. Vérifie l'accès GitHub avec git remote -v, puis réessaie." }

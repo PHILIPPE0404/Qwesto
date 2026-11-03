@@ -5,6 +5,8 @@ let currentUser = null;
 let adminCache = { members: [], surveys: [], leaderboard: [], recent: [] };
 let currentSurvey = null;
 let podiumBusy = false;
+let cpxConsented = false;
+let cpxAuthorized = false;
 let memberPage = 1;
 const memberPageSize = 8;
 
@@ -236,6 +238,17 @@ function renderMembers(members) {
       try { await api(`/api/admin/members/${encodeURIComponent(member.id)}/reset-password`, { method: 'POST', body: JSON.stringify({ tempPassword: password }) }); alert('Mot de passe réinitialisé. Le membre devra le changer.'); await loadAdmin(); }
       catch (error) { alert(error.message); }
     }));
+    actions.append(actionButton(member.cpx_enabled ? 'Retirer CPX' : 'Autoriser CPX', 'button-soft small-button', async () => {
+      const enable = !member.cpx_enabled;
+      const notice = enable
+        ? `Autoriser CPX pour ${member.username} ? Confirme que le membre a au moins 14 ans et que son représentant légal a donné son accord s'il est mineur. N'active pas CPX sans cette vérification.`
+        : `Retirer l'accès CPX de ${member.username} ?`;
+      if (!confirm(notice)) return;
+      try {
+        await api(`/api/admin/members/${encodeURIComponent(member.id)}/cpx-access`, { method: 'PATCH', body: JSON.stringify({ enabled: enable }) });
+        await loadAdmin();
+      } catch (error) { alert(error.message); }
+    }));
     tr.append(status, actions); tbody.append(tr);
   }
   const pagination = $('memberPagination'); pagination.replaceChildren();
@@ -311,7 +324,93 @@ async function loadMember() {
   setText('memberAvailable', data.surveys.length);
   renderMemberSurveys(data.surveys);
   renderMemberHistory(data.history);
+  await loadCpxStatus();
 }
+
+async function loadCpxStatus() {
+  const status = $('cpxStatus');
+  const consentArea = $('cpxConsentArea');
+  const openButton = $('cpxOpenButton');
+  const check = $('cpxConsentCheck');
+  const revoke = $('cpxRevokeButton');
+  const consentRow = document.querySelector('.cpx-consent-check');
+  hide('cpxWallArea');
+  hide('cpxConsentArea');
+  hide('cpxRevokeButton');
+  $('cpxFrame').src = 'about:blank';
+  check.checked = false;
+  openButton.disabled = true;
+  openButton.textContent = 'Confirmer et ouvrir les sondages CPX';
+  try {
+    const data = await api('/api/member/cpx-status');
+    cpxConsented = data.consented;
+    cpxAuthorized = data.authorizedByAdmin;
+    if (!data.configured) {
+      status.textContent = 'CPX n’est pas encore configuré. L’administrateur doit ajouter les variables CPX dans Render.';
+      return;
+    }
+    if (!data.authorizedByAdmin) {
+      status.textContent = 'L’administrateur doit d’abord autoriser CPX pour ce compte après avoir vérifié l’âge requis et, pour un membre mineur, l’accord du représentant légal.';
+      return;
+    }
+    if (data.consented) {
+      if (consentRow) consentRow.classList.add('hidden');
+      status.textContent = 'Accord enregistré. Tu peux ouvrir le mur de sondages CPX.';
+      openButton.textContent = 'Ouvrir les sondages CPX';
+      openButton.disabled = false;
+      show('cpxConsentArea');
+      show('cpxRevokeButton');
+      return;
+    }
+    if (consentRow) consentRow.classList.remove('hidden');
+    status.textContent = 'Avant la première ouverture, lis les informations et confirme les conditions.';
+    show('cpxConsentArea');
+  } catch (error) {
+    status.textContent = error.message || 'Impossible de vérifier CPX.';
+  }
+}
+
+$('cpxConsentCheck').addEventListener('change', () => {
+  $('cpxOpenButton').disabled = !cpxAuthorized || (!$('cpxConsentCheck').checked && !cpxConsented);
+});
+$('cpxOpenButton').addEventListener('click', async () => {
+  const button = $('cpxOpenButton');
+  button.disabled = true;
+  try {
+    if (!cpxConsented) {
+      if (!$('cpxConsentCheck').checked) throw new Error('Coche la confirmation après avoir lu les conditions.');
+      await api('/api/member/cpx-consent', { method: 'POST', body: JSON.stringify({ confirmed: true }) });
+      cpxConsented = true;
+    }
+    const data = await api('/api/member/cpx-wall');
+    $('cpxFrame').src = data.url;
+    show('cpxWallArea');
+    $('cpxStatus').textContent = 'Mur CPX ouvert. Les enquêtes et leur disponibilité sont gérées par CPX.';
+    $('cpxOpenButton').textContent = 'Rouvrir les sondages CPX';
+    show('cpxRevokeButton');
+  } catch (error) {
+    $('cpxStatus').textContent = error.message;
+    button.disabled = false;
+  }
+});
+$('cpxCloseButton').addEventListener('click', () => {
+  $('cpxFrame').src = 'about:blank';
+  hide('cpxWallArea');
+  $('cpxStatus').textContent = 'Mur CPX fermé.';
+});
+$('cpxRevokeButton').addEventListener('click', async () => {
+  if (!confirm('Retirer ton accord CPX pour ce compte ?')) return;
+  try {
+    await api('/api/member/cpx-consent', { method: 'DELETE' });
+    cpxConsented = false;
+    $('cpxFrame').src = 'about:blank';
+    hide('cpxWallArea'); hide('cpxRevokeButton');
+    $('cpxConsentCheck').checked = false;
+    $('cpxOpenButton').textContent = 'Confirmer et ouvrir les sondages CPX';
+    $('cpxOpenButton').disabled = true;
+    $('cpxStatus').textContent = 'Ton accord CPX a été retiré.';
+  } catch (error) { $('cpxStatus').textContent = error.message; }
+});
 function renderMemberSurveys(surveys) {
   const grid = $('memberSurveyList'); grid.replaceChildren();
   if (!surveys.length) { grid.append(node('div', 'empty-state', 'Aucun questionnaire publié pour le moment.')); return; }

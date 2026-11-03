@@ -10,3 +10,16 @@
 @media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:22px 14px}.topbar{align-items:flex-start}.top-actions{gap:8px}.connection{font-size:0}.connection .live-dot{width:9px;height:9px}.login-layout{grid-template-columns:1fr;gap:23px;margin:10px auto 50px}.login-intro{text-align:center}.login-intro h2{font-size:38px}.login-intro>p{margin:0 auto}.login-decoration{justify-content:center;margin-top:15px}.login-card{padding:23px}.admin-columns{grid-template-columns:1fr}.section-heading{align-items:flex-start}.survey-admin-card{align-items:flex-start;flex-direction:column}.survey-actions{justify-content:flex-start}.member-survey-grid{grid-template-columns:1fr}.podium-scene{min-height:520px;padding:40px 12px 25px}.podium-stage{gap:5px;min-height:260px}.winner-third{height:145px}.winner-second{height:185px}.winner-first{height:225px}.pixel-person{scale:.85}.winner-name{font-size:10px}.winner-count{font-size:8px}.scene-stars i:nth-child(3),.scene-stars i:nth-child(6){display:none}}
 @media(max-width:460px){.stats-grid{gap:8px}.stat-card{padding:13px;min-height:120px}.stat-card strong{font-size:24px}.stat-icon{width:27px;height:27px;right:10px;top:10px}.member-stats{grid-template-columns:1fr 1fr}.member-stats .stat-card strong{font-size:21px}.input-row{grid-template-columns:1fr}.section-heading{gap:9px}.section-heading>.button{flex-shrink:0;font-size:10px;padding:8px}.podium-stage{min-height:220px}.winner-third{height:125px}.winner-second{height:160px}.winner-first{height:195px}.pixel-person{scale:.72;margin-bottom:-5px}.podium-caption{font-size:11px}.modal-card{padding:21px 14px}}
 .table-filters{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.filter-select{padding:10px 12px;border-radius:10px;border:1px solid #34425f;background:#0c1423;color:#e9effb;font-size:11px;outline:none}.filter-select:focus{border-color:var(--mint)}.pagination{display:flex;align-items:center;justify-content:center;gap:13px;padding:15px 0 4px}.pagination .muted{font-size:10px}
+
+/* CPX Research wall */
+.cpx-panel{border-color:#485b70;background:linear-gradient(145deg,#192536,#141b28)}
+.cpx-status{padding:11px 13px;margin:5px 0 12px;border-radius:10px;background:#111a28;color:#cbd6e7;font-size:13px}
+.cpx-consent-area{display:grid;gap:12px}
+.cpx-privacy-note{margin:0;padding:13px 14px;background:#342b1e;border:1px solid #63502d;color:#f0dfbe;border-radius:11px;font-size:12px;line-height:1.6}
+.cpx-terms-links{margin:0;font-size:12px}.cpx-terms-links a{color:var(--mint);text-decoration:underline;text-underline-offset:3px}
+.cpx-consent-check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:#111826;color:#d7dfed;font-size:12px;line-height:1.55}
+.cpx-consent-check input{margin-top:3px;accent-color:#9cf0ce;flex:0 0 auto;width:16px;height:16px}
+.cpx-wall-area{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.cpx-wall-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:#141d2b;color:#eef3fb;font-size:13px}
+#cpxFrame{display:block;width:100%;height:1900px;border:0;background:#fff}
+@media(max-width:650px){#cpxFrame{height:2100px}.cpx-panel{padding:14px}}
