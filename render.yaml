@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: qwesto-demo
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEMO_MEMBER_PERCENT
+        value: "60"

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10131c">
+  <title>Qwesto — Démonstration</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">Q</span><span>Qwesto</span></div>
+      <div class="side-caption">ESPACE DE TEST</div>
+      <div class="side-item active">▦ &nbsp; Tableau de bord</div>
+      <div class="side-item">◷ &nbsp; Sondages de démonstration</div>
+      <div class="side-item">◈ &nbsp; Portefeuille fictif</div>
+      <div class="side-foot">Mode démonstration<br><span>Aucun paiement réel</span></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">QWESTO / TEST</div>
+          <h1 id="pageTitle">Bienvenue sur Qwesto</h1>
+          <p id="pageSub">Connecte-toi à ton espace de démonstration.</p>
+        </div>
+        <div class="top-actions"><span class="status-dot"></span><span id="connectionLabel">Hors connexion</span><button id="logoutBtn" class="btn ghost hidden">Déconnexion</button></div>
+      </header>
+
+      <section id="loginPanel" class="login-wrap">
+        <div class="login-card">
+          <div class="login-symbol">Q</div>
+          <div class="eyebrow">ACCÈS DE DÉMONSTRATION</div>
+          <h2>Connexion</h2>
+          <p>Entre ton identifiant puis ton mot de passe. L'administrateur utilise l'identifiant <b>admin</b>.</p>
+          <form id="loginForm">
+            <label for="username">Identifiant</label>
+            <input id="username" autocomplete="username" maxlength="32" placeholder="admin ou membre01" required>
+            <label for="password">Mot de passe</label>
+            <input id="password" type="password" autocomplete="current-password" required>
+            <button class="btn primary full" type="submit">Se connecter <span>→</span></button>
+          </form>
+          <p id="loginError" class="error hidden"></p>
+          <p class="micro-note">Les comptes membres sont créés par l'administrateur. Pas d'inscription publique.</p>
+        </div>
+      </section>
+
+      <section id="passwordPanel" class="login-wrap hidden">
+        <div class="login-card">
+          <div class="eyebrow">PREMIÈRE CONNEXION</div>
+          <h2>Choisis ton mot de passe</h2>
+          <p>Remplace le mot de passe temporaire par un mot de passe personnel d'au moins 12 caractères.</p>
+          <form id="changePasswordForm">
+            <label for="newPassword">Nouveau mot de passe</label>
+            <input id="newPassword" type="password" minlength="12" autocomplete="new-password" required>
+            <label for="confirmPassword">Confirmer le mot de passe</label>
+            <input id="confirmPassword" type="password" minlength="12" autocomplete="new-password" required>
+            <button class="btn primary full" type="submit">Enregistrer</button>
+          </form>
+          <p id="passwordError" class="error hidden"></p>
+        </div>
+      </section>
+
+      <section id="adminPanel" class="hidden">
+        <div class="welcome-row"><div><h2>Espace administrateur</h2><p>Créer des comptes de test et consulter les simulations.</p></div><span class="role-tag admin-tag">ADMIN</span></div>
+        <div class="demo-alert"><b>Mode démonstration uniquement.</b> Les offres et montants affichés sont fictifs. CPX Research et PayPal ne sont pas connectés, aucun paiement ne sera effectué.</div>
+        <div class="stats-grid">
+          <article class="stat-card"><span>Total simulé</span><strong id="adminGross">0,00 €</strong><small>Somme des simulations de sondages</small></article>
+          <article class="stat-card"><span>Part membres</span><strong id="adminMembers">0,00 €</strong><small id="memberPercentLabel">60 % de démonstration</small></article>
+          <article class="stat-card accent-card"><span>Part plateforme</span><strong id="adminPlatform">0,00 €</strong><small id="platformPercentLabel">40 % de démonstration</small></article>
+          <article class="stat-card"><span>Simulations</span><strong id="adminTransactions">0</strong><small>Événements fictifs enregistrés</small></article>
+        </div>
+        <div class="grid-two">
+          <section class="panel">
+            <div class="panel-head"><div><h3>Créer le premier membre</h3><p>Un compte de test, sans relation de travail.</p></div></div>
+            <form id="createMemberForm" class="form-grid">
+              <div><label for="memberName">Nom affiché</label><input id="memberName" placeholder="Ex. Alex Martin" maxlength="80" required></div>
+              <div><label for="memberUsername">Identifiant</label><input id="memberUsername" placeholder="membre01" maxlength="32" required></div>
+              <div class="span-two"><label for="memberTempPassword">Mot de passe temporaire</label><input id="memberTempPassword" type="text" minlength="12" placeholder="Au moins 12 caractères" autocomplete="off" required></div>
+              <button class="btn primary" type="submit">+ Créer le compte de test</button>
+            </form>
+            <div id="createResult" class="feedback hidden"></div>
+          </section>
+          <section class="panel split-panel">
+            <div class="panel-head"><div><h3>Répartition simulée</h3><p>Exemple de calcul, sans argent réel.</p></div></div>
+            <div class="split-visual"><div class="split-user"></div><div class="split-platform"></div></div>
+            <div class="split-legend"><span><i class="dot user-dot"></i> Membre <b>60 %</b></span><span><i class="dot platform-dot"></i> Plateforme <b>40 %</b></span></div>
+            <p class="small-warning">La répartition réelle ne doit être utilisée qu'après accord écrit du fournisseur, validation juridique et mise en place d'un dispositif de paiement conforme.</p>
+          </section>
+        </div>
+        <section class="panel table-panel">
+          <div class="panel-head"><div><h3>Comptes membres de test</h3><p id="memberCount">Chargement…</p></div><button id="refreshAdmin" class="btn ghost small" type="button">Actualiser ↻</button></div>
+          <div class="table-scroll"><table><thead><tr><th>Nom</th><th>Identifiant</th><th>Part fictive</th><th>Statut</th><th>Action</th></tr></thead><tbody id="membersTable"><tr><td colspan="5" class="empty-cell">Chargement…</td></tr></tbody></table></div>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-head"><div><h3>Dernières simulations</h3><p>Ces lignes ne sont pas des conversions CPX réelles.</p></div></div>
+          <div class="table-scroll"><table><thead><tr><th>Membre</th><th>Sondage</th><th>Total fictif</th><th>Part membre</th><th>Date</th></tr></thead><tbody id="recentTable"><tr><td colspan="5" class="empty-cell">Aucune simulation.</td></tr></tbody></table></div>
+        </section>
+      </section>
+
+      <section id="memberPanel" class="hidden">
+        <div class="welcome-row"><div><h2 id="memberWelcome">Ton espace membre</h2><p>Teste l'affichage et le calcul des récompenses avec des offres fictives.</p></div><span class="role-tag member-tag">MEMBRE TEST</span></div>
+        <div class="demo-alert"><b>Attention :</b> ces sondages et gains sont des exemples. Ils ne proviennent pas de CPX Research et ne donnent droit à aucun paiement.</div>
+        <div class="stats-grid member-stats">
+          <article class="stat-card"><span>Part membre simulée</span><strong id="memberBalance">0,00 €</strong><small id="memberSplitLabel">60 % du montant fictif</small></article>
+          <article class="stat-card"><span>Total des simulations</span><strong id="memberGross">0,00 €</strong><small>Avant répartition fictive</small></article>
+          <article class="stat-card"><span>Simulations effectuées</span><strong id="memberTransactions">0</strong><small>Aucune rémunération réelle</small></article>
+        </div>
+        <section class="panel survey-panel">
+          <div class="panel-head"><div><h3>Sondages d'exemple</h3><p>Utilise le bouton pour simuler une complétion.</p></div><span class="role-tag">FAUX SONDAGES</span></div>
+          <div id="surveyGrid" class="survey-grid"></div>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-head"><div><h3>Historique fictif</h3><p>Calculs de démonstration uniquement.</p></div></div>
+          <div class="table-scroll"><table><thead><tr><th>Sondage</th><th>Total fictif</th><th>Ta part</th><th>Date</th></tr></thead><tbody id="historyTable"><tr><td colspan="4" class="empty-cell">Aucune simulation.</td></tr></tbody></table></div>
+        </section>
+      </section>
+
+      <footer class="footer">Qwesto · Prototype de démonstration · Aucun fournisseur de sondages ou de paiement connecté.</footer>
+    </main>
+  </div>
+</body>
+</html>
