@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: attapoll-dashboard
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
