@@ -1,15 +1,14 @@
 {
-  "name": "qwesto-demo",
-  "version": "1.0.0",
+  "name": "qwesto",
+  "version": "2.0.0",
   "private": true,
-  "description": "Qwesto demo portal with admin and member accounts; no live survey or payment provider",
+  "description": "Qwesto - platforme de sondages internes avec publication et classement (mode test)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "check": "node --check server.js && node --check public/app.js"
   },
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": { "node": ">=20" },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "connect-pg-simple": "^10.0.0",

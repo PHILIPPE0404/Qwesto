@@ -3,123 +3,145 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#10131c">
-  <title>Qwesto — Démonstration</title>
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Qwesto — espace de sondages et de tests privés.">
+  <title>Qwesto — Espace sondages</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <div class="shell">
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <div class="layout">
     <aside class="sidebar">
-      <div class="brand"><span class="brand-mark">Q</span><span>Qwesto</span></div>
-      <div class="side-caption">ESPACE DE TEST</div>
-      <div class="side-item active">▦ &nbsp; Tableau de bord</div>
-      <div class="side-item">◷ &nbsp; Sondages de démonstration</div>
-      <div class="side-item">◈ &nbsp; Portefeuille fictif</div>
-      <div class="side-foot">Mode démonstration<br><span>Aucun paiement réel</span></div>
+      <a class="brand" href="/" aria-label="Qwesto accueil"><span class="brand-mark">Q</span><span>qwesto<span class="brand-dot">.</span></span></a>
+      <p class="side-label">ESPACE PRIVÉ</p>
+      <div class="side-link active"><span>▦</span> Tableau de bord</div>
+      <div class="side-link"><span>◷</span> Sondages</div>
+      <div class="side-link"><span>♜</span> Classement</div>
+      <div class="side-bottom"><span class="live-dot"></span><div><strong>Mode test</strong><small>Publication interne</small></div></div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <div>
-          <div class="eyebrow">QWESTO / TEST</div>
-          <h1 id="pageTitle">Bienvenue sur Qwesto</h1>
-          <p id="pageSub">Connecte-toi à ton espace de démonstration.</p>
-        </div>
-        <div class="top-actions"><span class="status-dot"></span><span id="connectionLabel">Hors connexion</span><button id="logoutBtn" class="btn ghost hidden">Déconnexion</button></div>
+        <div><p class="eyebrow">QWESTO / WORKSPACE</p><h1 id="pageTitle">Bienvenue sur Qwesto</h1><p id="pageSub" class="subtitle">Connecte-toi à ton espace privé.</p></div>
+        <div class="top-actions"><span id="connectionLabel" class="connection"><i class="live-dot"></i> Hors connexion</span><button id="logoutBtn" class="button button-soft hidden" type="button">Déconnexion</button></div>
       </header>
 
-      <section id="loginPanel" class="login-wrap">
+      <section id="loginPanel" class="login-layout">
+        <div class="login-intro"><span class="pill pill-mint">PLATEFORME PRIVÉE</span><h2>Les idées prennent vie.<br><em>Les réponses aussi.</em></h2><p>Connecte-toi pour accéder aux sondages publiés par ton administrateur et suivre les résultats.</p><div class="login-decoration"><span>✦</span><span>✧</span><span>✦</span></div></div>
         <div class="login-card">
-          <div class="login-symbol">Q</div>
-          <div class="eyebrow">ACCÈS DE DÉMONSTRATION</div>
-          <h2>Connexion</h2>
-          <p>Entre ton identifiant puis ton mot de passe. L'administrateur utilise l'identifiant <b>admin</b>.</p>
-          <form id="loginForm">
-            <label for="username">Identifiant</label>
-            <input id="username" autocomplete="username" maxlength="32" placeholder="admin ou membre01" required>
-            <label for="password">Mot de passe</label>
-            <input id="password" type="password" autocomplete="current-password" required>
-            <button class="btn primary full" type="submit">Se connecter <span>→</span></button>
+          <div class="card-icon">Q</div><p class="eyebrow">BON RETOUR</p><h2>Connexion</h2><p class="muted">Entre tes identifiants pour continuer.</p>
+          <form id="loginForm" class="form-stack">
+            <label for="username">Identifiant</label><input id="username" name="username" autocomplete="username" maxlength="32" placeholder="admin ou ton identifiant" required>
+            <label for="password">Mot de passe</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ton mot de passe" required>
+            <button class="button button-primary button-wide" type="submit">Se connecter <span>→</span></button>
           </form>
-          <p id="loginError" class="error hidden"></p>
-          <p class="micro-note">Les comptes membres sont créés par l'administrateur. Pas d'inscription publique.</p>
+          <p id="loginError" class="form-error hidden" role="alert"></p>
+          <p class="tiny-note">Les comptes membres sont créés par l'administrateur. Pas d'inscription publique.</p>
         </div>
       </section>
 
-      <section id="passwordPanel" class="login-wrap hidden">
-        <div class="login-card">
-          <div class="eyebrow">PREMIÈRE CONNEXION</div>
-          <h2>Choisis ton mot de passe</h2>
-          <p>Remplace le mot de passe temporaire par un mot de passe personnel d'au moins 12 caractères.</p>
-          <form id="changePasswordForm">
-            <label for="newPassword">Nouveau mot de passe</label>
-            <input id="newPassword" type="password" minlength="12" autocomplete="new-password" required>
-            <label for="confirmPassword">Confirmer le mot de passe</label>
-            <input id="confirmPassword" type="password" minlength="12" autocomplete="new-password" required>
-            <button class="btn primary full" type="submit">Enregistrer</button>
-          </form>
-          <p id="passwordError" class="error hidden"></p>
+      <section id="passwordPanel" class="login-layout hidden">
+        <div class="login-intro"><span class="pill pill-mint">SÉCURITÉ DU COMPTE</span><h2>Un nouveau mot<br><em>de passe.</em></h2><p>Pour protéger ton compte, remplace le mot de passe temporaire par un mot de passe personnel.</p></div>
+        <div class="login-card"><div class="card-icon">🔐</div><p class="eyebrow">PREMIÈRE CONNEXION</p><h2>Modifier le mot de passe</h2>
+          <form id="changePasswordForm" class="form-stack"><label for="newPassword">Nouveau mot de passe</label><input id="newPassword" type="password" minlength="12" autocomplete="new-password" required><label for="confirmPassword">Confirmer le mot de passe</label><input id="confirmPassword" type="password" minlength="12" autocomplete="new-password" required><button class="button button-primary button-wide" type="submit">Enregistrer</button></form>
+          <p id="passwordError" class="form-error hidden" role="alert"></p>
         </div>
       </section>
 
       <section id="adminPanel" class="hidden">
-        <div class="welcome-row"><div><h2>Espace administrateur</h2><p>Créer des comptes de test et consulter les simulations.</p></div><span class="role-tag admin-tag">ADMIN</span></div>
-        <div class="demo-alert"><b>Mode démonstration uniquement.</b> Les offres et montants affichés sont fictifs. CPX Research et PayPal ne sont pas connectés, aucun paiement ne sera effectué.</div>
+        <div class="welcome-line"><div><span class="pill pill-violet">ADMINISTRATEUR</span><h2>Vue d'ensemble</h2><p class="muted">Publie tes questionnaires et suis les participations.</p></div><button id="refreshAdmin" class="button button-soft" type="button">↻ Actualiser</button></div>
+        <div class="notice notice-warning"><strong>Mode de test.</strong> Tu peux créer et publier tes propres questionnaires pour les membres. Aucun fournisseur externe de sondages ni paiement PayPal n'est connecté. Les réponses et statistiques sont conservées dans PostgreSQL.</div>
         <div class="stats-grid">
-          <article class="stat-card"><span>Total simulé</span><strong id="adminGross">0,00 €</strong><small>Somme des simulations de sondages</small></article>
-          <article class="stat-card"><span>Part membres</span><strong id="adminMembers">0,00 €</strong><small id="memberPercentLabel">60 % de démonstration</small></article>
-          <article class="stat-card accent-card"><span>Part plateforme</span><strong id="adminPlatform">0,00 €</strong><small id="platformPercentLabel">40 % de démonstration</small></article>
-          <article class="stat-card"><span>Simulations</span><strong id="adminTransactions">0</strong><small>Événements fictifs enregistrés</small></article>
+          <article class="stat-card"><span class="stat-icon mint-icon">▤</span><small>Sondages créés</small><strong id="statSurveys">0</strong><span id="statPublished" class="stat-caption">0 publiés</span></article>
+          <article class="stat-card"><span class="stat-icon violet-icon">✉</span><small>Réponses reçues</small><strong id="statResponses">0</strong><span class="stat-caption">Toutes participations</span></article>
+          <article class="stat-card"><span class="stat-icon blue-icon">♙</span><small>Membres inscrits</small><strong id="statMembers">0</strong><span class="stat-caption">Comptes de la plateforme</span></article>
+          <article class="stat-card"><span class="stat-icon gold-icon">◉</span><small>Membres actifs</small><strong id="statActive">0</strong><span class="stat-caption">Comptes activés</span></article>
         </div>
-        <div class="grid-two">
-          <section class="panel">
-            <div class="panel-head"><div><h3>Créer le premier membre</h3><p>Un compte de test, sans relation de travail.</p></div></div>
-            <form id="createMemberForm" class="form-grid">
-              <div><label for="memberName">Nom affiché</label><input id="memberName" placeholder="Ex. Alex Martin" maxlength="80" required></div>
-              <div><label for="memberUsername">Identifiant</label><input id="memberUsername" placeholder="membre01" maxlength="32" required></div>
-              <div class="span-two"><label for="memberTempPassword">Mot de passe temporaire</label><input id="memberTempPassword" type="text" minlength="12" placeholder="Au moins 12 caractères" autocomplete="off" required></div>
-              <button class="btn primary" type="submit">+ Créer le compte de test</button>
+
+        <section class="panel podium-panel">
+          <div class="section-heading"><div><p class="eyebrow">HALL OF FAME</p><h3>Le podium Qwesto</h3><p class="muted">Les membres sont classés par nombre de questionnaires terminés.</p></div><button id="playPodium" class="button button-primary" type="button">▶ Révéler le podium</button></div>
+          <div id="leaderboardPreview" class="leaderboard-preview" aria-live="polite"><div class="empty-state">Les premières participations apparaîtront ici.</div></div>
+        </section>
+
+        <div class="admin-columns">
+          <section class="panel create-panel">
+            <div class="section-heading"><div><p class="eyebrow">CRÉATION</p><h3>Créer un sondage</h3><p class="muted">Écris une question par ligne.</p></div><span class="panel-symbol">＋</span></div>
+            <form id="createSurveyForm" class="form-stack">
+              <label for="surveyTitle">Titre du sondage</label><input id="surveyTitle" maxlength="100" placeholder="Ex. Les habitudes numériques" required>
+              <label for="surveyDescription">Description</label><textarea id="surveyDescription" maxlength="500" rows="2" placeholder="Explique brièvement le but du sondage…"></textarea>
+              <div class="input-row"><div><label for="surveyCategory">Catégorie</label><input id="surveyCategory" maxlength="40" value="Général" required></div><div><label for="surveyMinutes">Durée estimée (min)</label><input id="surveyMinutes" type="number" min="1" max="90" value="5" required></div></div>
+              <label for="surveyQuestions">Questions <span class="label-hint">1 à 12 lignes</span></label><textarea id="surveyQuestions" rows="6" placeholder="Quel âge as-tu ?&#10;Quel est ton avis sur le sujet ?&#10;Que faudrait-il améliorer ?" required></textarea>
+              <button class="button button-primary button-wide" type="submit">Créer en brouillon <span>＋</span></button>
             </form>
-            <div id="createResult" class="feedback hidden"></div>
+            <p id="surveyCreateMessage" class="inline-message hidden" aria-live="polite"></p>
           </section>
-          <section class="panel split-panel">
-            <div class="panel-head"><div><h3>Répartition simulée</h3><p>Exemple de calcul, sans argent réel.</p></div></div>
-            <div class="split-visual"><div class="split-user"></div><div class="split-platform"></div></div>
-            <div class="split-legend"><span><i class="dot user-dot"></i> Membre <b>60 %</b></span><span><i class="dot platform-dot"></i> Plateforme <b>40 %</b></span></div>
-            <p class="small-warning">La répartition réelle ne doit être utilisée qu'après accord écrit du fournisseur, validation juridique et mise en place d'un dispositif de paiement conforme.</p>
+          <section class="panel member-create-panel">
+            <div class="section-heading"><div><p class="eyebrow">COMPTES</p><h3>Ajouter un membre</h3><p class="muted">Un accès privé avec changement du mot de passe à la première connexion.</p></div><span class="panel-symbol">♙</span></div>
+            <form id="createMemberForm" class="form-stack">
+              <label for="memberName">Nom affiché</label><input id="memberName" maxlength="80" placeholder="Ex. Alex Martin" required>
+              <label for="memberUsername">Identifiant</label><input id="memberUsername" maxlength="32" placeholder="alex01" required>
+              <label for="memberTempPassword">Mot de passe temporaire</label><input id="memberTempPassword" type="password" minlength="12" autocomplete="new-password" placeholder="12 caractères minimum" required>
+              <button class="button button-soft button-wide" type="submit">Créer le compte <span>＋</span></button>
+            </form>
+            <p id="createMemberMessage" class="inline-message hidden" aria-live="polite"></p>
           </section>
         </div>
-        <section class="panel table-panel">
-          <div class="panel-head"><div><h3>Comptes membres de test</h3><p id="memberCount">Chargement…</p></div><button id="refreshAdmin" class="btn ghost small" type="button">Actualiser ↻</button></div>
-          <div class="table-scroll"><table><thead><tr><th>Nom</th><th>Identifiant</th><th>Part fictive</th><th>Statut</th><th>Action</th></tr></thead><tbody id="membersTable"><tr><td colspan="5" class="empty-cell">Chargement…</td></tr></tbody></table></div>
+
+        <section class="panel">
+          <div class="section-heading"><div><p class="eyebrow">PUBLICATION</p><h3>Mes sondages</h3><p class="muted">Un sondage publié devient visible dans l'espace des membres.</p></div><span id="surveyListCount" class="count-badge">0 sondage</span></div>
+          <div id="adminSurveyList" class="survey-admin-list"><div class="empty-state">Aucun sondage créé pour l'instant.</div></div>
         </section>
-        <section class="panel table-panel">
-          <div class="panel-head"><div><h3>Dernières simulations</h3><p>Ces lignes ne sont pas des conversions CPX réelles.</p></div></div>
-          <div class="table-scroll"><table><thead><tr><th>Membre</th><th>Sondage</th><th>Total fictif</th><th>Part membre</th><th>Date</th></tr></thead><tbody id="recentTable"><tr><td colspan="5" class="empty-cell">Aucune simulation.</td></tr></tbody></table></div>
+
+        <section class="panel">
+          <div class="section-heading"><div><p class="eyebrow">GESTION</p><h3>Comptes membres</h3><p class="muted">Recherche, activation et réinitialisation des accès.</p></div><button id="exportMembers" class="button button-soft" type="button">↓ Exporter CSV</button></div>
+          <div class="table-tools"><div class="table-filters"><input id="memberSearch" class="search-input" type="search" placeholder="Rechercher un nom ou identifiant…"><select id="memberStatusFilter" class="filter-select" aria-label="Filtrer les membres"><option value="all">Tous les comptes</option><option value="active">Actifs</option><option value="disabled">Désactivés</option></select></div><span id="memberCount" class="muted">0 membre</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Membre</th><th>Identifiant</th><th>Participations</th><th>Dernière activité</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="membersTable"><tr><td colspan="6" class="empty-cell">Chargement…</td></tr></tbody></table></div><div id="memberPagination" class="pagination"></div>
         </section>
+        <section class="panel"><div class="section-heading"><div><p class="eyebrow">ACTIVITÉ</p><h3>Dernières réponses</h3><p class="muted">Les réponses restent consultables depuis le sondage concerné.</p></div></div><div class="table-wrap"><table><thead><tr><th>Membre</th><th>Sondage</th><th>Date</th></tr></thead><tbody id="recentTable"><tr><td colspan="3" class="empty-cell">Aucune réponse.</td></tr></tbody></table></div></section>
       </section>
 
       <section id="memberPanel" class="hidden">
-        <div class="welcome-row"><div><h2 id="memberWelcome">Ton espace membre</h2><p>Teste l'affichage et le calcul des récompenses avec des offres fictives.</p></div><span class="role-tag member-tag">MEMBRE TEST</span></div>
-        <div class="demo-alert"><b>Attention :</b> ces sondages et gains sont des exemples. Ils ne proviennent pas de CPX Research et ne donnent droit à aucun paiement.</div>
-        <div class="stats-grid member-stats">
-          <article class="stat-card"><span>Part membre simulée</span><strong id="memberBalance">0,00 €</strong><small id="memberSplitLabel">60 % du montant fictif</small></article>
-          <article class="stat-card"><span>Total des simulations</span><strong id="memberGross">0,00 €</strong><small>Avant répartition fictive</small></article>
-          <article class="stat-card"><span>Simulations effectuées</span><strong id="memberTransactions">0</strong><small>Aucune rémunération réelle</small></article>
-        </div>
-        <section class="panel survey-panel">
-          <div class="panel-head"><div><h3>Sondages d'exemple</h3><p>Utilise le bouton pour simuler une complétion.</p></div><span class="role-tag">FAUX SONDAGES</span></div>
-          <div id="surveyGrid" class="survey-grid"></div>
-        </section>
-        <section class="panel table-panel">
-          <div class="panel-head"><div><h3>Historique fictif</h3><p>Calculs de démonstration uniquement.</p></div></div>
-          <div class="table-scroll"><table><thead><tr><th>Sondage</th><th>Total fictif</th><th>Ta part</th><th>Date</th></tr></thead><tbody id="historyTable"><tr><td colspan="4" class="empty-cell">Aucune simulation.</td></tr></tbody></table></div>
-        </section>
+        <div class="welcome-line"><div><span class="pill pill-mint">ESPACE MEMBRE</span><h2 id="memberWelcome">Bienvenue</h2><p class="muted">Retrouve ici les questionnaires publiés et ton activité.</p></div></div>
+        <div class="notice notice-info">Les questionnaires sont créés par l'administrateur de cette plateforme. Les participations ne génèrent aucun revenu et aucun paiement PayPal n'est activé.</div>
+        <div class="stats-grid member-stats"><article class="stat-card"><span class="stat-icon mint-icon">✓</span><small>Questionnaires terminés</small><strong id="memberCompleted">0</strong><span class="stat-caption">Tes participations</span></article><article class="stat-card"><span class="stat-icon violet-icon">▤</span><small>Disponibles</small><strong id="memberAvailable">0</strong><span class="stat-caption">Sondages publiés</span></article></div>
+        <section class="panel"><div class="section-heading"><div><p class="eyebrow">À DÉCOUVRIR</p><h3>Sondages disponibles</h3><p class="muted">Choisis un questionnaire pour répondre.</p></div></div><div id="memberSurveyList" class="member-survey-grid"><div class="empty-state">Chargement des sondages…</div></div></section>
+        <section class="panel"><div class="section-heading"><div><p class="eyebrow">TON HISTORIQUE</p><h3>Mes participations</h3></div></div><div id="memberHistory" class="history-list"><div class="empty-state">Aucune participation pour le moment.</div></div></section>
       </section>
 
-      <footer class="footer">Qwesto · Prototype de démonstration · Aucun fournisseur de sondages ou de paiement connecté.</footer>
+      <section id="surveyTakingPanel" class="panel survey-taking hidden">
+        <div class="section-heading"><div><p class="eyebrow">QUESTIONNAIRE</p><h3 id="takingTitle">Sondage</h3><p id="takingDescription" class="muted"></p></div><button id="cancelSurvey" class="button button-soft" type="button">← Retour</button></div>
+        <div id="takingProgress" class="progress-track"><span></span></div><p id="takingMeta" class="muted"></p>
+        <form id="takeSurveyForm" class="form-stack"><div id="questionFields"></div><button class="button button-primary button-wide" type="submit">Envoyer mes réponses <span>→</span></button></form>
+        <p id="takingMessage" class="inline-message hidden"></p>
+      </section>
+
+      <footer class="footer"><span class="brand-mini">Q</span> Qwesto · Espace de questionnaires privés · Mode test</footer>
     </main>
+  </div>
+
+  <div id="podiumOverlay" class="podium-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="podiumTitle">
+    <div class="podium-scene">
+      <button id="closePodium" class="overlay-close" type="button" aria-label="Fermer">×</button>
+      <div class="scene-stars" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i><i>·</i><i>✧</i><i>·</i></div>
+      <p class="eyebrow">QWESTO AWARDS</p><h2 id="podiumTitle">Les membres à l'honneur</h2>
+      <p class="scene-subtitle">Classement des participations terminées</p>
+      <div id="countdownNumber" class="countdown-number">3</div>
+      <div id="podiumStage" class="podium-stage hidden">
+        <div class="podium-slot" id="winnerThird"></div>
+        <div class="podium-slot" id="winnerFirst"></div>
+        <div class="podium-slot" id="winnerSecond"></div>
+      </div>
+      <p id="podiumCaption" class="podium-caption">La troisième place arrive…</p>
+      <p class="scene-footnote">Classement basé sur les réponses enregistrées dans Qwesto.</p>
+    </div>
+  </div>
+
+  <div id="memberHistoryModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="memberHistoryTitle">
+    <div class="modal-card"><button id="closeMemberHistory" class="overlay-close" type="button" aria-label="Fermer">×</button><p class="eyebrow">FICHE MEMBRE</p><h2 id="memberHistoryTitle">Historique du membre</h2><div id="memberHistoryContent" class="responses-content"></div></div>
+  </div>
+  <div id="responsesModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="responsesTitle">
+    <div class="modal-card"><button id="closeResponses" class="overlay-close" type="button" aria-label="Fermer">×</button><p class="eyebrow">RÉSULTATS</p><h2 id="responsesTitle">Réponses reçues</h2><div id="responsesContent" class="responses-content"></div></div>
   </div>
 </body>
 </html>

@@ -1,106 +1,102 @@
-# Qwesto — prototype de démonstration
+# Qwesto 2.0 — refonte complète
 
-Qwesto est un prototype web qui contient :
-- une connexion administrateur (`admin`) protégée par une variable Render ;
-- la création de comptes membres privés par l'administrateur ;
-- un mot de passe temporaire et un changement obligatoire à la première connexion ;
-- l'activation ou la désactivation d'un compte ;
-- un espace membre ;
-- trois sondages entièrement fictifs pour essayer l'interface ;
-- une comptabilité de démonstration paramétrable (60 % membre / 40 % plateforme) ;
-- une base PostgreSQL pour conserver les comptes et les simulations après redéploiement.
+Qwesto 2.0 est une plateforme privée de questionnaires internes avec comptes membres, création/publication de questionnaires, enregistrement des réponses, consultation des résultats et podium animé.
 
-## Limites impératives de cette version
+## Fonctions
 
-**Cette version est une démonstration, pas un service rémunéré.** Elle ne se connecte ni à CPX Research ni à PayPal. Les sondages, montants et transactions sont fictifs ; aucun argent n'est gagné, collecté, transféré ou dû aux membres. Le bouton « Simuler » enregistre uniquement une simulation dans PostgreSQL.
+- Connexion administrateur et membres ; aucun formulaire d'inscription public.
+- Comptes membres créés, activés/désactivés et réinitialisés par l'administrateur.
+- Changement obligatoire du mot de passe temporaire.
+- Création de questionnaires en brouillon, publication, dépublication, archivage et suppression des questionnaires sans réponses.
+- Membres capables de répondre une seule fois à chaque questionnaire publié.
+- Historique membre et consultation des réponses par questionnaire côté administration.
+- Classement par nombre de questionnaires terminés ; révélation animée 3e place, 2e place, pause, puis 1re place avec petits personnages pixel-art en CSS.
+- Export CSV des membres.
+- PostgreSQL pour les membres, questionnaires, réponses et sessions.
+- Les tables historiques `qwesto_members` et `qwesto_demo_ledger` sont conservées. Les anciens montants de démonstration ne sont plus affichés comme des gains.
 
-Les conditions éditeur publiques de CPX Research indiquent que le titulaire éditeur doit avoir au moins 18 ans (ou être une personne morale admissible) et posséder les droits nécessaires sur la plateforme. Les conditions PayPal France demandent également 18 ans minimum et la pleine capacité juridique pour un compte particulier. Cette démonstration ne contourne pas ces conditions. Ne crée pas de compte en utilisant l'identité ou les informations d'une autre personne.
+## Important : sondages externes et PayPal
 
-L'interface appelle les utilisateurs « membres » : créer un compte dans ce prototype ne crée pas un contrat de travail et ne remplace aucune formalité légale.
+Cette version permet de **créer et publier tes propres questionnaires** dans Qwesto. Elle ne se connecte pas à CPX Research, BitLabs ou à un autre fournisseur externe, et n'envoie pas de paiements PayPal. Aucun montant présenté dans l'ancien prototype ne doit être considéré comme de l'argent disponible.
 
-## 1. Préparer les fichiers
+Un raccordement réel à un fournisseur et à PayPal nécessite notamment les contrats/approbations du fournisseur, un compte professionnel PayPal éligible avec les permissions requises, la vérification d'identité, le traitement des données personnelles et un cadre légal/comptable adapté. Ces services doivent être mis en place par un adulte ou une structure légalement habilitée. Ne publie pas de promesse de rémunération avant validation et tests réels.
 
-1. Télécharge et décompresse `qwesto-demo.zip`.
-2. Ouvre le dossier `qwesto-demo`.
-3. Envoie **le contenu de ce dossier** à un dépôt GitHub que tu contrôles. `package.json` et `server.js` doivent se trouver à la racine du dépôt, pas dans un sous-dossier supplémentaire.
+## Prérequis
 
-## 2. Créer la base PostgreSQL sur Render
+- Node.js 20 ou plus récent (npm inclus).
+- Git pour envoyer le code sur GitHub.
+- Une base PostgreSQL (Render PostgreSQL convient).
+- Un service web Render ou un autre hébergeur Node.js.
 
-1. Ouvre Render et crée une base **PostgreSQL**.
-2. Choisis une région proche du service web.
-3. Une fois la base créée, ouvre ses informations de connexion.
-4. Copie l'**Internal Database URL** si le service web se trouve dans la même région Render. Garde cette adresse privée.
+## Installation Windows (recommandée)
 
-## 3. Créer le service web
-
-1. Dans Render, choisis **New → Web Service**.
-2. Connecte le dépôt GitHub contenant les fichiers Qwesto.
-3. Paramètres :
-   - Runtime : `Node`
-   - Build Command : `npm install`
-   - Start Command : `npm start`
-4. Crée le service. Attends que Render affiche son URL publique, par exemple `https://qwesto-demo.onrender.com`.
-
-## 4. Ajouter les variables d'environnement
-
-Dans **Render → service Qwesto → Environment**, ajoute ces variables :
-
-| Nom | Valeur |
-|---|---|
-| `NODE_ENV` | `production` |
-| `DATABASE_URL` | Internal Database URL de PostgreSQL |
-| `ADMIN_PASSWORD` | Mot de passe admin unique de 20 caractères minimum |
-| `SESSION_SECRET` | Secret aléatoire de 64 caractères hexadécimaux |
-| `DEMO_MEMBER_PERCENT` | `60` |
-
-Pour générer un secret aléatoire avec Node.js sur ton ordinateur, ouvre PowerShell et exécute :
-
-```powershell
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-Copie le résultat dans `SESSION_SECRET`. Pour `ADMIN_PASSWORD`, choisis séparément un mot de passe long et unique, et conserve-le dans un gestionnaire de mots de passe. Ne publie aucune de ces valeurs dans GitHub, dans le code du navigateur ou dans une conversation.
-
-Après avoir ajouté ou modifié les variables, lance **Manual Deploy → Deploy latest commit** dans Render. Les tables PostgreSQL sont créées au démarrage.
-
-## 5. Se connecter en administrateur
-
-1. Ouvre l'URL Render de Qwesto.
-2. Entre `admin` dans le champ Identifiant.
-3. Entre exactement la valeur que tu as définie dans `ADMIN_PASSWORD`.
-4. Tu arrives sur l'espace administrateur.
-
-Si le site ne démarre pas, consulte **Render → Logs**. Vérifie en premier que `DATABASE_URL`, `ADMIN_PASSWORD` et `SESSION_SECRET` existent et que la base PostgreSQL est active.
-
-## 6. Créer le premier membre de test
-
-Dans l'espace administrateur, utilise le bloc **Créer le premier membre** :
-
-1. **Nom affiché** : `Membre de test 01`.
-2. **Identifiant** : `membre01`.
-3. **Mot de passe temporaire** : crée un mot de passe aléatoire de 12 caractères ou plus. Exemple de génération dans PowerShell :
+1. Télécharge et décompresse le ZIP.
+2. Ouvre le dossier `Qwesto-complet` extrait.
+3. Dans la barre d'adresse de l'Explorateur, tape `powershell` puis Entrée.
+4. Lance :
 
    ```powershell
-   node -e "console.log(require('crypto').randomBytes(16).toString('base64url'))"
+   powershell -ExecutionPolicy Bypass -File ".\INSTALLER.ps1"
    ```
 
-4. Clique sur **Créer le compte de test**.
-5. Transmets l'identifiant et le mot de passe temporaire uniquement par un canal privé et sûr. Ne le poste pas dans un serveur Discord public.
-6. Déconnecte-toi de l'administrateur.
-7. Connecte-toi avec `membre01` et le mot de passe temporaire.
-8. À la première connexion, le site demande un nouveau mot de passe d'au moins 12 caractères. Après son changement, le membre voit les trois sondages fictifs.
-9. Clique sur **Simuler une fin de sondage** pour vérifier le calcul de partage. Le tableau de bord admin affiche ensuite la simulation.
+5. Quand le script le demande, colle le chemin du dossier de ton dépôt Qwesto cloné depuis GitHub. C'est le dossier qui contient déjà `server.js` et `public`.
+6. Le script sauvegarde les anciens fichiers dans `backup-qwesto-AAAA...`, copie les nouveaux fichiers, installe les dépendances et vérifie la syntaxe.
+7. Pour envoyer les changements sur GitHub, toujours depuis le dossier du dépôt, lance :
 
-Pour désactiver ce compte, retourne dans l'espace admin et clique sur **Désactiver**. Un compte désactivé ne peut plus se connecter.
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File ".\DEPLOYER.ps1"
+   ```
 
-## 7. Vérifier le fonctionnement
+   Tu peux aussi faire manuellement :
 
-- Vérification du serveur : `https://TON-SERVICE.onrender.com/health` doit afficher `{ "ok": true, "mode": "demo-only" }`.
-- L'administrateur doit pouvoir créer et désactiver un membre.
-- Le membre doit devoir changer son mot de passe temporaire.
-- Les sondages de test doivent porter la mention **EXEMPLE FICTIF**.
-- Le portefeuille et les statistiques doivent afficher uniquement les simulations.
+   ```powershell
+   npm install
+   npm run check
+   git add server.js package.json render.yaml README.md DEPLOYER.ps1 public/index.html public/app.js public/styles.css
+   git commit -m "Qwesto 2.0"
+   git push
+   ```
 
-## Ce qui manque pour un véritable service
+## Déploiement Render
 
-Une intégration réelle à un fournisseur d'enquêtes, la distribution de récompenses monétaires, les paiements, la gestion des litiges, la protection des données, les conditions d'utilisation et les obligations de l'éditeur exigent un fournisseur qui approuve le projet et un exploitant légalement habilité. Rien de cela n'est activé dans ce prototype.
+Dans le service web Render, conserve ou configure ces variables d'environnement :
+
+| Variable | Valeur |
+|---|---|
+| `NODE_ENV` | `production` |
+| `DATABASE_URL` | Internal Database URL de PostgreSQL Render |
+| `ADMIN_PASSWORD` | Ton mot de passe admin secret, au moins 20 caractères |
+| `SESSION_SECRET` | Une chaîne aléatoire secrète d'au moins 64 caractères |
+
+Build command : `npm install`  
+Start command : `npm start`  
+Health check path : `/health`
+
+Pour générer une valeur forte de `SESSION_SECRET` sur Windows avec Node.js :
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+Ne mets jamais ces secrets dans GitHub, dans `server.js`, dans `public` ou dans une capture d'écran.
+
+## Première utilisation
+
+1. Connecte-toi avec l'identifiant `admin` et la valeur de `ADMIN_PASSWORD`.
+2. Crée un membre et transmets son identifiant/mot de passe temporaire en privé.
+3. Crée un questionnaire : une question par ligne.
+4. Dans « Mes sondages », clique sur « Publier ».
+5. Le membre se connecte et répond au questionnaire.
+6. Retourne dans l'administration pour consulter les réponses et lancer « Révéler le podium ».
+
+## Vérifications
+
+- `GET /health` doit répondre avec `ok: true` et `database: connected`.
+- `npm run check` vérifie la syntaxe de `server.js` et `public/app.js`.
+- Les membres désactivés sont refusés même si une session était déjà ouverte.
+- Un membre ne peut répondre qu'une fois au même questionnaire.
+- Les questionnaires publiés ne peuvent pas être supprimés ; archive-les pour les retirer de l'espace membre.
+
+## Données existantes
+
+La base n'est pas réinitialisée. Les comptes membres existants sont conservés, mais chaque membre qui a encore `must_change_password = true` devra d'abord changer son mot de passe. Les anciennes lignes de simulation sont conservées dans `qwesto_demo_ledger`, mais ne sont plus présentées comme des gains ou des paiements.
