@@ -1,1 +1,16 @@
-{"name":"attapoll-dashboard","version":"1.0.0","description":"Personal survey dashboard for Render","main":"server.js","scripts":{"start":"node server.js"},"engines":{"node":">=18"}}
+
+{
+  "name": "attapoll-dashboard",
+  "version": "1.0.1",
+  "description": "SurveySpace dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
